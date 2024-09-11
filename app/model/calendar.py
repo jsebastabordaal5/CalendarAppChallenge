@@ -6,13 +6,13 @@ from app.services.util import generate_unique_id, date_lower_than_today_error, e
     reminder_not_found_error, slot_not_available_error
 
 
-# TODO: Implement Reminder class here
+class Reminder:
 
+    "EMAIL": str = "email"
+    "SYSTEM": str = "system"
 
-# TODO: Implement Event class here
+    date_time: datetime
+    type: str
 
-
-# TODO: Implement Day class here
-
-
-# TODO: Implement Calendar class here
+    def __str__(self):
+        return f"Reminder on {self.date_time} of type {self.type}"
