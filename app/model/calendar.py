@@ -32,3 +32,25 @@ class Event:
     def add_reminder(self, date_time: datetime, type: str = Reminder.EMAIL):
         reminder = Reminder(date_time=date_time, type=type)
         self.reminders.append(reminder)
+
+
+class Day:
+
+    def __init__(self, date_: date):
+        self.date_: date = date_
+        self.slots: dict[time, str | None] = {}
+
+
+    def __str__(self) -> str:
+        return """
+            ID: {id}
+            Event title: {title}
+            Description: {description}
+            Time: {start_at} - {end_at}
+        """
+
+
+
+
+class Calendar:
+    pass
