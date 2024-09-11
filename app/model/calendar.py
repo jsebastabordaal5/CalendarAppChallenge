@@ -34,12 +34,6 @@ class Event:
         self.reminders.append(reminder)
 
 
-class Day:
-
-    def __init__(self, date_: date):
-        self.date_: date = date_
-        self.slots: dict[time, str | None] = {}
-
 
     def __str__(self) -> str:
         return """
@@ -48,6 +42,16 @@ class Day:
             Description: {description}
             Time: {start_at} - {end_at}
         """
+
+
+class Day:
+
+    def __init__(self, date_: date):
+        self.date_: date = date_
+        self.slots: dict[time, str | None] = {}
+
+
+
 
 
 
