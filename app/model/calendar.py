@@ -113,4 +113,14 @@ class Calendar:
         self.days: dict[date, Day] = {}
         self.events: dict[str, Event] = {}
 
-    def add_event(self, title: str, ):
+    def add_event(self, title: str, description: str, date_: date, start_at: time, end_at: time):
+        if date_ < datetime.now().date():
+            date_lower_than_today_error()
+            return ""
+        if date_ not in self.days:
+            self.days[date_] = Day(date_)
+        event_id = generate_unique_id()
+        event = Event(title=title, description=description, date_=date_, start_at=start_at, end_at=end_at, id=event_id)
+        self.days[date_].add_event(title, description, date_, start_at, end_at)
+        self.events[event_id] = event
+        return event_id
