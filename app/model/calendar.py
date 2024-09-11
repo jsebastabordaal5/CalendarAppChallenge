@@ -82,7 +82,6 @@ class Day:
         current_hour = start_at.hour
         current_minute = start_at.minute
 
-
         while (current_hour, current_minute) < (end_at.hour, end_at.minute):
             current_time = time(current_hour, current_minute)
             self.slots[current_time] = event_id
