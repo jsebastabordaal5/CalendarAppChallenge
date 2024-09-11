@@ -51,31 +51,46 @@ class Day:
         self._init_slots()
 
     def _init_slots(self):
-        current_time = time(0, 0)
-        end_time = time(23, 45)
-        slot_duration = timedelta(minutes=15)
+        hour = 0
+        minute = 0
 
-        while current_time <= end_time:
+        while hour < 24:
+            current_time = time(hour, minute)
             self.slots[current_time] = None
-            current_datetime = datetime.combine(self.date_, current_time) + slot_duration
-            current_time = current_datetime.time()
+
+            minute += 15
+            if minute == 60:
+                minute = 0
+                hour += 1
 
     def add_event(self, event_id: str, start_at: time, end_at: time):
-        current_time = start_at
+        current_hour = start_at.hour
+        current_minute = start_at.minute
 
-        while current_time < end_at:
+        while (current_hour, current_minute) < (end_at.hour, end_at.minute):
+            current_time = time(current_hour, current_minute)
+
             if self.slots.get(current_time) is not None:
                 slot_not_available_error()
                 return
 
-            current_datetime = datetime.combine(self.date_, current_time) + timedelta(minutes=15)
-            current_time = current_datetime.time()
+            current_minute += 15
+            if current_minute == 60:
+                current_minute = 0
+                current_hour += 1
 
-        current_time = start_at
-        while current_time < end_at:
+        current_hour = start_at.hour
+        current_minute = start_at.minute
+
+
+        while (current_hour, current_minute) < (end_at.hour, end_at.minute):
+            current_time = time(current_hour, current_minute)
             self.slots[current_time] = event_id
-            current_datetime = datetime.combine(self.date_, current_time) + timedelta(minutes=15)
-            current_time = current_datetime.time()
+
+            current_minute += 15
+            if current_minute == 60:
+                current_minute = 0
+                current_hour += 1
 
     def delete_event(self, event_id: str):
         deleted = False
@@ -100,20 +115,18 @@ class Day:
 
 
 class Calendar:
-
     def __init__(self):
         self.days: dict[date, Day] = {}
         self.events: dict[str, Event] = {}
 
     def add_event(self, title: str, description: str, date_: date, start_at: time, end_at: time) -> str:
-
         if date_ < datetime.now().date():
             date_lower_than_today_error()
             return ""
 
-
         if date_ not in self.days:
             self.days[date_] = Day(date_)
+
             event_id = generate_unique_id()
             event = Event(
                 title=title,
@@ -124,15 +137,16 @@ class Calendar:
                 id=event_id
             )
 
-        self.days[date_].add_event(title, description, date_, start_at, end_at)
-        self.events[event_id] = event
+            self.days[date_].add_event(event_id, start_at, end_at)
+            self.events[event_id] = event
 
-        return event_id
+            return event_id
 
     def add_reminder(self, event_id: str, date_time: datetime, type_: str):
         if event_id not in self.events:
             event_not_found_error()
             return
+
         self.events[event_id].add_reminder(date_time, type_)
 
     def find_available_slots(self, date_: date) -> list[time]:
@@ -148,7 +162,7 @@ class Calendar:
         if not event:
             event_not_found_error()
 
-        is_new_date = False
+            is_new_date = False
 
         if event.date_ != date_:
             self.delete_event(event_id)
@@ -158,30 +172,30 @@ class Calendar:
             is_new_date = True
             if date_ not in self.days:
                 self.days[date_] = Day(date_)
-            day = self.days[date_]
-            day.add_event(event_id, start_at, end_at)
-        else:
-            event.title = title
-            event.description = description
-            event.date_ = date_
-            event.start_at = start_at
-            event.end_at = end_at
+                day = self.days[date_]
+                day.add_event(event_id, start_at, end_at)
+            else:
+                event.title = title
+                event.description = description
+                event.date_ = date_
+                event.start_at = start_at
+                event.end_at = end_at
 
-        for day in self.days.values():
-            if not is_new_date and event_id in day.slots.values():
-                day.delete_event(event.id)
-                day.update_event(event.id, start_at, end_at)
+            for day in self.days.values():
+                if not is_new_date and event_id in day.slots.values():
+                    day.delete_event(event.id)
+                    day.update_event(event.id, start_at, end_at)
 
     def delete_event(self, event_id: str):
         if event_id not in self.events:
             event_not_found_error()
 
-        self.events.pop(event_id)
+            self.events.pop(event_id)
 
-        for day in self.days.values():
-            if event_id in day.slots.values():
-                day.delete_event(event_id)
-                break
+            for day in self.days.values():
+                if event_id in day.slots.values():
+                    day.delete_event(event_id)
+                    break
 
     def find_events(self, start_at: date, end_at: date) -> dict[date, list[Event]]:
         events: dict[date, list[Event]] = {}
@@ -189,8 +203,8 @@ class Calendar:
             if start_at <= event.date_ <= end_at:
                 if event.date_ not in events:
                     events[event.date_] = []
-                events[event.date_].append(event)
-        return events
+                    events[event.date_].append(event)
+            return events
 
     def delete_reminder(self, event_id: str, reminder_index: int):
         event = self.events.get(event_id)
@@ -205,3 +219,4 @@ class Calendar:
             event_not_found_error()
 
         return event.reminders
+
